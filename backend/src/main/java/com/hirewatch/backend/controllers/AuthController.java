@@ -16,15 +16,19 @@ public class AuthController {
     @Autowired
     private UserService userService;
 
-    // POST http://localhost:8080/api/auth/register
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody Map<String, String> payload) {
+        String email = payload.get("email");
+        String password = payload.get("password");
+
+        // VALIDATION CHECK
+        if (email == null || email.trim().isEmpty() || password == null || password.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("Email and Password are required.");
+        }
+
         try {
-            String email = payload.get("email");
-            String password = payload.get("password");
-            
             User newUser = userService.registerUser(email, password);
-            return ResponseEntity.ok(newUser); // Returns the created user (with ID)
+            return ResponseEntity.ok(newUser);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -35,6 +39,11 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody Map<String, String> payload) {
         String email = payload.get("email");
         String password = payload.get("password");
+
+        // VALIDATION CHECK
+        if (email == null || email.trim().isEmpty() || password == null || password.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("Email and Password are required.");
+        }
 
         try {
             User user = userService.findByEmail(email);
